@@ -11,13 +11,12 @@ class Scraper
       Category.new(name, url)
     end
   end
+
     # scrapes all the articles under category instance
   def scrape_category(categ)
     page = Nokogiri::HTML(HTTParty.get(categ.url).body)
-    categ.featart = featurearts(page)
-    categ.otherart = otherarts(page)
-  end
-
+    featurearts(page)
+    otherarts(page)
   end
 
   def featurearts(page)
@@ -27,13 +26,13 @@ class Scraper
       FeatureArt.new(title, link)
   end
 
-  def scrape_feat(article)
-    #   article_page = Nokogiri::HTML(HTTParty.get(article.link).body)
-    #   article.author = article_page.css("xxx").text
-    #   article.biopart1 = article_page.css("p")[2].text
-    #   article.biopart2 = article_page.css("p")[3].text
-    #   article.date = article_page.css(".content-header__publish-date").text
-    # end
+  def scrape_article(feat)
+    feat_page = Nokogiri::HTML(HTTParty.get(feat.link).body)
+    feat.author = ffeat_page.css(".byline__name").text
+    feat.biopart1 = feat_page.css("p")[2].text
+    feat.biopart2 = feat_page.css("p")[3].text
+    feat.date = feat_page.css(".content-header__publish-date").text
+  end
 
   def otherarts(page)
     page.css(".feed-card").each do |info|
@@ -43,12 +42,4 @@ class Scraper
     end
   end
 
-  # # # scrapes each instacnce of article bio/ info
-  # def scrape_other(article)
-  #   article_page = Nokogiri::HTML(HTTParty.get(article.link).body)
-  #   article.author = article_page.css("xxx").text
-  #   article.biopart1 = article_page.css("p")[2].text
-  #   article.biopart2 = article_page.css("p")[3].text
-  #   article.date = article_page.css(".content-header__publish-date").text
-  # end
 end

@@ -6,7 +6,7 @@ require "pry"
 
 class Cli
   def call
-    Scraper.new
+    @scraper = Scraper.new
     welcome
     start
   end
@@ -33,10 +33,10 @@ class Cli
   def cat_list
     puts ""
     puts "Categories:".colorize(:light_blue).underline
-    list_all
+    list_of_cat
   end
 
-  def list_all
+  def list_of_cat
     Category.all.map do |cat|
       puts "* #{cat.name}"
       puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
@@ -47,10 +47,11 @@ class Cli
     input = gets.strip.downcase
     if input == "exit"
       ex
-
     elsif !Category.find_by_name(input)
-      error
+      cat_error
     elsif input
+      FeatureArt.all.clear
+      Article.all.clear
       info(input)
     end
   end
@@ -60,7 +61,7 @@ class Cli
     exit
   end
 
-  def error
+  def cat_error
     print "Sorry,".colorize(:red)
     print " there is currently no additional info on that category,"
     puts " try entering a different category name:".colorize(:red)
@@ -68,7 +69,7 @@ class Cli
 
   def info(input)
     categ = Category.find_by_name(input)
-    Scraper.new.scrape_category(categ)
+    @nestedscrape = @scraper.scrape_category(categ)
     info_layout(categ)
   end
 
@@ -76,16 +77,95 @@ class Cli
     first_sec(categ)
     print "If you'd like to look at a different category,"
     puts " type in a different name."
+    cat_list
   end
 
   def first_sec(categ)
     print "You have chosen".colorize(:light_blue)
     puts " '#{categ.name}'"
-    puts "we recommend checking out one of the featured articles:"
-    #scrape top articles
-    puts "or if none of those interest you, here's a list of other articles to keep you up to date with the lastest #{categ.name}."
+    puts "We recommend checking out one of the featured articles:"
+    list_of_feat(categ)
+    puts "Select one of the feature articles by entering it's feature ID number to access more info"
+    puts "If none of these articles interest, you can be provided with more articles by typing in 'more' or go back to categories by typing 'categories'."
+    cat_conditional(categ)
+    # puts "#{categ.otherart}"
   end
 
+  def list_of_feat(categ)
+    FeatureArt.all.map do |feat|
+      puts "* Feature ID: #{feat.id}"
+      puts "* #{feat.title}"
+      puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
+    end
+  end
+
+  def cat_conditional(categ)
+    input = gets.strip.downcase
+    if input == "more"
+      puts "Here are some more articles about #{categ.name}:"
+      list_of_otherart
+      puts "Do any of these interest you?"
+      puts "Type 'yes' and we can provide you the link to full article or type 'no' and we will take you back to all categories"
+      extra_art_condition
+    elsif input == "categories"
+      FeatureArt.all.clear
+      Article.all.clear
+      start
+    elsif input.to_i > 0 && input.to_i <= FeatureArt.all.count
+      feat_select(input)
+    else
+      feat_error(categ)
+    end
+  end
+
+  def feat_select(input)
+      feat = FeatureArt.find_by_id(input.to_i)
+      @nestedscrape.scrape_feat(feat)
+      puts "You chose '#{feat.title}', which was written by #{feat.author}."
+      puts "Here's the link: #{feat.link}"
+  end
+
+  def feat_error(categ)
+    print "Sorry,".colorize(:red)
+    print " there are no articles for that feature article,"
+    puts " try entering a different feature ID:".colorize(:red)
+    puts ""
+    cat_conditional(categ)
+  end
+
+  def list_of_otherart
+    Article.all.map do |art|
+      puts "* Article ID: #{art.id}"
+      puts "* Title: #{art.title}"
+      puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
+    end
+  end
+
+  def extra_art_condition
+    input = gets.strip.downcase
+    if input != "yes" && input != "no"
+      puts "Sorry, I don't understand your command, please try typing in 'yes' or 'no'."
+      extra_art_condition
+    elsif input == "yes"
+      puts "Which article were you intereested in? Select it by article ID num:"
+      yes_condition
+    elsif input == "no"
+      FeatureArt.all.clear
+      Article.all.clear
+      start
+    end
+  end
+
+  def yes_condition
+    input = gets.strip
+    if input.to_i <= 0 || input.to_i > Article.all.count
+      puts "Sorry, there's no link associated with that article, try a different article number:"
+      yes_condition
+    else
+      article = Article.find_by_id(input.to_i)
+      puts "Here's the link: #{article.link}"
+    end
+  end
   # def second_sec(article)
   #   print "To give you an idea of what this article is about,"
   #   print " here is an"

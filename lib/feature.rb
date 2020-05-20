@@ -1,7 +1,4 @@
-# blueprint of object
-# no puts, just stores instances of data i.e. attributes of articles
-
-class Article
+class FeatureArt
   attr_accessor :title, :author, :link, :date, :biopart1, :biopart2, :id
 
   @@all = []
