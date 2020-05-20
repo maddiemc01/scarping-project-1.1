@@ -24,14 +24,15 @@ class Scraper
       title = info.css(".four-story--title a").text
       link = info.css(".four-story--title a").attr("href").text
       FeatureArt.new(title, link)
+    end
   end
 
-  def scrape_article(feat)
-    feat_page = Nokogiri::HTML(HTTParty.get(feat.link).body)
-    feat.author = ffeat_page.css(".byline__name").text
-    feat.biopart1 = feat_page.css("p")[2].text
-    feat.biopart2 = feat_page.css("p")[3].text
-    feat.date = feat_page.css(".content-header__publish-date").text
+  def scrape_article(artfet)
+    artfet_page = Nokogiri::HTML(HTTParty.get(artfet.link).body)
+    artfet.author = artfet_page.css(".byline__name").text
+    artfet.biopart1 = artfet_page.css("p")[2].text
+    artfet.biopart2 = artfet_page.css("p")[3].text
+    artfet.date = artfet_page.css(".content-header__publish-date").text
   end
 
   def otherarts(page)

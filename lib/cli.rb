@@ -69,7 +69,7 @@ class Cli
 
   def info(input)
     categ = Category.find_by_name(input)
-    @nestedscrape = @scraper.scrape_category(categ)
+    @scraper.scrape_category(categ)
     info_layout(categ)
   end
 
@@ -120,7 +120,7 @@ class Cli
 
   def feat_select(input)
       feat = FeatureArt.find_by_id(input.to_i)
-      @nestedscrape.scrape_feat(feat)
+      @scraper.scrape_article(feat)
       puts "You chose '#{feat.title}', which was written by #{feat.author}."
       puts "Here's the link: #{feat.link}"
   end
