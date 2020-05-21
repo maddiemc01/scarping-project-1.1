@@ -1,20 +1,23 @@
 class Interface
   class << self
     def welcome
-      print "*~~*~~*".colorize(:light_blue)
-      print " Welcome fashionista/fashionisto! ".colorize(:light_blue).underline
-      puts "*~~*~~*".colorize(:light_blue)
-      print "Here you can stay up to date".colorize(:light_blue)
-      puts " with all the latest fashion".colorize(:light_blue)
+      welcome_string = "Welcome fashionista/fashionisto!".underline
+      puts_blue "*~~*~~* #{welcome_string} *~~*~~*"
+      puts_blue "Here you can stay up to date with all the latest fashion"
     end
 
-    def cat_error
-      print "Sorry,".colorize(:red)
+    def puts_blue(string)
+      puts string.colorize(:light_blue)
+    end
+
+    def category_error
+      print("Sorry,".colorize(:red))
       print " there is currently no additional info on that category,"
       puts " try entering a different category name:".colorize(:red)
     end
 
-    def cat_list
+    def category_list
+      puts ""
       puts "Categories:".colorize(:light_blue).underline
       Category.all.map do |cat|
         puts "* #{cat.name}"
