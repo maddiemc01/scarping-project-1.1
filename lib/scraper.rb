@@ -1,5 +1,3 @@
-require "pry"
-# no "puts"
 class Scraper
   BASE_URL = "https://www.vogue.com"
 
@@ -12,35 +10,37 @@ class Scraper
     end
   end
 
-    # scrapes all the articles under category instance
-  def scrape_category(categ)
-    page = Nokogiri::HTML(HTTParty.get(categ.url).body)
-    featurearts(page)
-    otherarts(page)
+  # scrapes all the articles under category instance
+  def scrape_category(category)
+    return if category.scraped
+
+    page = Nokogiri::HTML(HTTParty.get(category.url).body)
+    featurearts(page, category)
+    otherarts(page, category)
+    category.scraped = true
   end
 
-  def featurearts(page)
+  def featurearts(page, category)
     page.css(".four-story--item").each do |info|
       title = info.css(".four-story--title a").text
       link = info.css(".four-story--title a").attr("href").text
-      FeatureArt.new(title, link)
+      Article.new(title, link, category, true)
     end
   end
 
-  def scrape_article(artfet)
-    artfet_page = Nokogiri::HTML(HTTParty.get(artfet.link).body)
-    artfet.author = artfet_page.css(".byline__name").text
-    artfet.biopart1 = artfet_page.css("p")[2].text
-    artfet.biopart2 = artfet_page.css("p")[3].text
-    artfet.date = artfet_page.css(".content-header__publish-date").text
+  def scrape_article(article)
+    article_page = Nokogiri::HTML(HTTParty.get(article.link).body)
+    article.author = article_page.css(".byline__name").text
+    article.biopart1 = article_page.css("p")[2].text
+    article.biopart2 = article_page.css("p")[3].text
+    article.date = article_page.css(".content-header__publish-date").text
   end
 
-  def otherarts(page)
+  def otherarts(page, category)
     page.css(".feed-card").each do |info|
-      title = info.css(" .feed-card--title a").text
-      link = info.css(" .feed-card--title a").attr("href").text
-      Article.new(title, link)
+      title = info.css(".feed-card--title a").text
+      link = info.css(".feed-card--title a").attr("href").text
+      Article.new(title, link, category, false)
     end
   end
-
 end

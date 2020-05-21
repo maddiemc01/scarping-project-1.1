@@ -1,5 +1,5 @@
 class Category
-  attr_accessor :name, :url, :feature, :otherart
+  attr_accessor :name, :url, :feature, :otherart, :scraped, :article
 
   @@all = []
 
@@ -7,7 +7,6 @@ class Category
     @name = name
     @url = url
     @@all << self
-    # @id = @@all.count
   end
 
   def self.all
@@ -17,5 +16,6 @@ class Category
   def self.find_by_name(name)
     all.find { |category| category.name == name }
   end
+
 
 end
