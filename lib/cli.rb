@@ -14,7 +14,7 @@ class Cli
     Interface.category_list
     puts "Choose a category by typing it's name"
     loop do
-      puts "If you would like to #{Interface.print_red("exit")}, type 'exit'"
+      puts "If you would like to #{Interface.print_red('exit')}, type 'exit'"
       conditional
     end
   end
@@ -22,11 +22,9 @@ class Cli
   def conditional
     input = gets.strip.downcase
     exit_program if input == "exit"
-
     category = Category.find_by_name(input)
-    if category
-      info(category)
-    elsif
+    if category then info(category)
+    else
       Interface.category_error
     end
   end
@@ -49,17 +47,9 @@ class Cli
     puts ""
     puts "You have chosen '#{Interface.print_blue(category.name)}'"
     puts "We recommend checking out one of the featured articles:"
-    list_of_features(category)
+    Interface.list_of_features(category)
     Interface.id_more_cat
     category_conditional(category)
-  end
-
-  def list_of_features(category)
-    Article.featured_for_category(category).map do |feature|
-      puts "* Feature ID: #{feature.id}"
-      puts "* #{feature.title}"
-      puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
-    end
   end
 
   def category_conditional(category)
@@ -78,7 +68,7 @@ class Cli
     puts ""
     puts "Here are some more articles about" \
     " #{Interface.print_blue(category.name)}:"
-    list_of_other_articles(category)
+    Interface.list_of_other_articles(category)
     Interface.yes_no
     extra_article_condition
   end
@@ -98,24 +88,14 @@ class Cli
     category_conditional(category)
   end
 
-  def list_of_other_articles(category)
-    Article.more_articles_for_category(category).map do |article|
-      puts "* Article ID: #{article.id}"
-      puts "* Title: #{article.title}"
-      puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
-    end
-  end
-
   def extra_article_condition
     input = gets.strip.downcase
     if input != "yes" && input != "no"
       puts "#{Interface.red_sorry} I don't understand your command," \
         " please try typing in 'yes' or 'no'."
       extra_article_condition
-    elsif input == "yes"
-      yes_condition
-    elsif input == "no"
-      start
+    elsif input == "yes" then yes_condition
+    elsif input == "no" then start
     end
   end
 

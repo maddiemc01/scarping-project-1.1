@@ -45,6 +45,14 @@ class Interface
       end
     end
 
+    def list_of_features(category)
+      Article.featured_for_category(category).map do |feature|
+        puts "* Feature ID: #{feature.id}"
+        puts "* #{feature.title}"
+        puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
+      end
+    end
+
     def id_more_cat
       puts "Select one of the feature articles by entering" \
         " it's #{print_blue('feature ID')} number to access more info."
@@ -52,6 +60,14 @@ class Interface
         " you can be provided with more articles by typing in " \
         "#{print_pink("'more'")} or go back to categories " \
         "by typing #{print_pink("'categories'")}"
+    end
+
+    def list_of_other_articles(category)
+      Article.more_articles_for_category(category).map do |article|
+        puts "* Article ID: #{article.id}"
+        puts "* Title: #{article.title}"
+        puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
+      end
     end
 
     def yes_no
@@ -78,6 +94,5 @@ class Interface
       " try a different article number:"
       yes_condition
     end
-
   end
 end

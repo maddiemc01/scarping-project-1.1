@@ -1,8 +1,9 @@
 class Scraper
-  BASE_URL = "https://www.vogue.com"
+  BASE_URL = "https://www.vogue.com".freeze
 
   def initialize
-    main_page = Nokogiri::HTML(HTTParty.get("https://www.vogue.com/fashion").body)
+    main_page = Nokogiri::HTML(HTTParty
+                .get("https://www.vogue.com/fashion").body)
     main_page.css(".channel-nav--link")[1..-1].each do |category|
       name = category.text
       url = BASE_URL + category.attr("href")

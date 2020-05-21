@@ -16,6 +16,4 @@ class Category
   def self.find_by_name(name)
     all.find { |category| category.name == name }
   end
-
-
 end
