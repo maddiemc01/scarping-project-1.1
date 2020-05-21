@@ -14,9 +14,7 @@ class Cli
     Interface.category_list
     puts "Choose a category by typing it's name"
     loop do
-      print "If you would like to"
-      print " exit".colorize(:red)
-      puts ", type 'exit'"
+      puts "If you would like to #{Interface.print_red("exit")}, type 'exit'"
       conditional
     end
   end
@@ -49,8 +47,7 @@ class Cli
 
   def first_section(category)
     puts ""
-    puts "You have chosen"
-    puts " '#{category.name}'".colorize(:light_blue)
+    puts "You have chosen '#{Interface.print_blue(category.name)}'"
     puts "We recommend checking out one of the featured articles:"
     list_of_features(category)
     Interface.id_more_cat
@@ -67,35 +64,37 @@ class Cli
 
   def category_conditional(category)
     input = gets.strip.downcase
-    if input == "more"
-      puts ""
-      print "Here are some more articles about"
-      puts " #{category.name}:".colorize(:light_blue)
-      list_of_other_articles(category)
-      Interface.yes_no
-      extra_article_condition
-    elsif input == "categories"
-      start
-    elsif Article.featured_for_category(category).include?(Article.find_by_id(input.to_i))
+    if input == "more" then more_clause(category)
+    elsif input == "categories" then start
+    elsif Article.featured_for_category(category)
+                 .include?(Article.find_by_id(input.to_i))
       feature_select(input)
     else
       feature_error(category)
     end
   end
 
+  def more_clause(category)
+    puts ""
+    puts "Here are some more articles about" \
+    " #{Interface.print_blue(category.name)}:"
+    list_of_other_articles(category)
+    Interface.yes_no
+    extra_article_condition
+  end
+
   def feature_select(input)
     feat = Article.find_by_id(input.to_i)
     @scraper.scrape_article(feat)
-    print "You chose"
-    print " '#{feat.title}'".colorize(:light_blue)
-    puts ", which was written by #{feat.author}."
-    puts "This feature starts off with:"
-    puts "    #{feat.biopart1}"
+    puts "You chose #{Interface.print_blue(feat.title)}," \
+      " which was written by #{feat.author}."
+    puts "A glimpse into this feature article:"
+    puts "    #{feat.biopart2}"
     puts "Here's the link to read more: #{feat.link}"
   end
 
   def feature_error(category)
-    Interface.wrong_feat
+    Interface.wrong_feature
     category_conditional(category)
   end
 
@@ -110,8 +109,8 @@ class Cli
   def extra_article_condition
     input = gets.strip.downcase
     if input != "yes" && input != "no"
-      print "Sorry,".colorize(:red)
-      puts " I don't understand your command, please try typing in 'yes' or 'no'."
+      puts "#{Interface.red_sorry} I don't understand your command," \
+        " please try typing in 'yes' or 'no'."
       extra_article_condition
     elsif input == "yes"
       yes_condition
@@ -121,13 +120,10 @@ class Cli
   end
 
   def yes_condition
-    print "Which article were you interested in? Select it by"
-    print " article ID".colorize(:light_blue)
-    puts " number:"
+    Interface.yes_ask
     input = gets.strip.to_i
     if input <= 0 || !Article.find_by_id(input)
-      puts "Sorry, there's no link associated with that article, try a different article number:"
-      yes_condition
+      Interface.wrong_article
     else
       article = Article.find_by_id(input)
       print "Here's the link to"
