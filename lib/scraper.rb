@@ -12,11 +12,15 @@ class Scraper
     end
   end
 
-    # scrapes all the articles under category instance
+# optimize so nothing is ever scraped twice
+  # scrapes all the articles under category instance
   def scrape_category(categ)
-    page = Nokogiri::HTML(HTTParty.get(categ.url).body)
-    featurearts(page)
-    otherarts(page)
+    unless categ.scraped
+      page = Nokogiri::HTML(HTTParty.get(categ.url).body)
+      featurearts(page)
+      otherarts(page)
+      categ.scraped = true
+    end
   end
 
   def featurearts(page)
@@ -37,10 +41,9 @@ class Scraper
 
   def otherarts(page)
     page.css(".feed-card").each do |info|
-      title = info.css(" .feed-card--title a").text
-      link = info.css(" .feed-card--title a").attr("href").text
+      title = info.css(".feed-card--title a").text
+      link = info.css(".feed-card--title a").attr("href").text
       Article.new(title, link)
     end
   end
-
 end
