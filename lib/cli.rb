@@ -2,10 +2,13 @@
 # puts a lot
 # invokes scraper class
 # not using noku (for scraping)
+require_relative "./color.rb"
 
 class Cli
+  include Color
   def call
     @scraper = Scraper.new
+    Interface.scraper = @scraper
     Interface.welcome
     start
   end
@@ -14,19 +17,16 @@ class Cli
     Interface.category_list
     puts "Choose a category by typing it's name"
     loop do
-      puts "If you would like to #{Interface.print_red('exit')}, type 'exit'"
-      conditional
+      puts "If you would like to #{print_red('exit')}, type 'exit'"
+      category_conditional
     end
   end
 
-  def conditional
+  def category_conditional
     input = gets.strip.downcase
     exit_program if input == "exit"
     category = Category.find_by_name(input)
-    if category then info(category)
-    else
-      Interface.category_error
-    end
+    category ? category_info(category) : Interface.category_error
   end
 
   def exit_program
@@ -34,25 +34,23 @@ class Cli
     exit
   end
 
-  def info(category)
+  def category_info(category)
     @scraper.scrape_category(category) unless category.scraped
-    first_section(category)
-    puts ""
-    puts "If you'd like to look at a different category, " \
-         "type in a different name."
+    category_section(category)
+    puts "\nIf you'd like to look at another category, " \
+         "type in another category."
     Interface.category_list
   end
 
-  def first_section(category)
-    puts ""
-    puts "You have chosen '#{Interface.print_blue(category.name)}'"
-    puts "We recommend checking out one of the featured articles:"
+  def category_section(category)
+    puts "\nYou have chosen '#{print_blue(category.name)}'"
+    puts "We recommend checking out one of the featured articles:\n\n"
     Interface.list_of_features(category)
-    Interface.id_more_cat
-    category_conditional(category)
+    Interface.give_options_id_more_or_category
+    feature_conditional(category)
   end
 
-  def category_conditional(category)
+  def feature_conditional(category)
     input = gets.strip.downcase
     if input == "more" then more_clause(category)
     elsif input == "categories" then start
@@ -60,55 +58,53 @@ class Cli
                  .include?(Article.find_by_id(input.to_i))
       feature_select(input)
     else
-      feature_error(category)
+      feature_error
+      feature_conditional(category)
     end
   end
 
   def more_clause(category)
-    puts ""
-    puts "Here are some more articles about" \
-    " #{Interface.print_blue(category.name)}:"
+    puts "\nHere are some more articles about" \
+    " #{print_blue(category.name)}:\n\n"
     Interface.list_of_other_articles(category)
-    Interface.yes_no
-    extra_article_condition
+    Interface.ask_yes_no
+    extra_article_condition(category)
   end
 
   def feature_select(input)
-    feat = Article.find_by_id(input.to_i)
-    @scraper.scrape_article(feat)
-    puts "You chose #{Interface.print_blue(feat.title)}," \
-      " which was written by #{feat.author}."
+    feature = Article.find_by_id(input.to_i)
+    @scraper.scrape_article(feature)
+    puts "\nYou chose #{print_blue(feature.title)}," \
+      " which was written by #{feature.author} on #{feature.date}."
     puts "A glimpse into this feature article:"
-    puts "    #{feat.biopart2}"
-    puts "Here's the link to read more: #{feat.link}"
+    puts "    #{feature.bio}"
+    puts "Here's the link to read more: #{feature.link}"
   end
 
-  def feature_error(category)
+  def feature_error
     Interface.wrong_feature
-    category_conditional(category)
   end
 
-  def extra_article_condition
+  def extra_article_condition(category)
     input = gets.strip.downcase
     if input != "yes" && input != "no"
       puts "#{Interface.red_sorry} I don't understand your command," \
         " please try typing in 'yes' or 'no'."
-      extra_article_condition
-    elsif input == "yes" then yes_condition
+      extra_article_condition(category)
+    elsif input == "yes" then yes_clause(category)
     elsif input == "no" then start
     end
   end
 
-  def yes_condition
-    Interface.yes_ask
+  def yes_clause(category)
+    Interface.ask_after_yes
     input = gets.strip.to_i
-    if input <= 0 || !Article.find_by_id(input)
-      Interface.wrong_article
+    if Article.more_articles_for_category(category)
+              .include?(Article.find_by_id(input.to_i))
+      Interface.article_info(input)
     else
-      article = Article.find_by_id(input)
-      print "Here's the link to"
-      print " '#{article.title}':".colorize(:light_blue)
-      puts " #{article.link}"
+      Interface.wrong_article
+      yes_clause(category)
     end
   end
 end

@@ -1,29 +1,13 @@
 class Interface
   class << self
+    include Color
+    attr_accessor :scraper
+
     def welcome
       welcome_string = "Welcome fashionista/fashionisto!".underline
-      puts_blue "*~~*~~* #{welcome_string} *~~*~~*"
-      puts_blue "Here you can stay up to date with all the latest fashion"
-    end
-
-    def puts_blue(string)
-      puts string.colorize(:light_blue)
-    end
-
-    def print_blue(string)
-      string.colorize(:light_blue)
-    end
-
-    def print_red(string)
-      string.colorize(:red)
-    end
-
-    def print_pink(string)
-      string.colorize(:magenta)
-    end
-
-    def print_green(string)
-      string.colorize(:green)
+      puts print_blue("*~~*~~* '#{welcome_string}' *~~*~~*")
+      puts print_blue("Here you can stay up to date" \
+        "with all the latest fashion")
     end
 
     def red_sorry
@@ -36,9 +20,7 @@ class Interface
     end
 
     def category_list
-      puts ""
-      puts "Categories:".colorize(:light_blue).underline
-      puts ""
+      puts "\n#{print_blue('Categories:')}\n".underline
       Category.all.map do |cat|
         puts "* #{cat.name}"
         puts "*~~*~~*~~*~~*~~*~~*~~*~~*".colorize(:light_blue)
@@ -53,7 +35,7 @@ class Interface
       end
     end
 
-    def id_more_cat
+    def give_options_id_more_or_category
       puts "Select one of the feature articles by entering" \
         " it's #{print_blue('feature ID')} number to access more info."
       puts "If none of these articles interest you," \
@@ -70,7 +52,7 @@ class Interface
       end
     end
 
-    def yes_no
+    def ask_yes_no
       puts "Do any of these interest you?"
       puts "Type #{print_green("'yes'")} and we can provide you the link to " \
         "the full article or type #{print_red("'no'")} " \
@@ -80,11 +62,11 @@ class Interface
     def wrong_feature
       puts "#{red_sorry} that command was not understood, try entering a " \
         "#{print_red('valid')} feature ID number, or " \
-        "#{print_red('check your spelling')} and type 'more' or 'categories'"
-      puts ""
+        "#{print_red('check your spelling')} and type 'more'" \
+          " or 'categories'\n\n"
     end
 
-    def yes_ask
+    def ask_after_yes
       puts "Which article were you interested in? Select it by " \
         "#{print_blue('article ID')} number:"
     end
@@ -92,7 +74,15 @@ class Interface
     def wrong_article
       puts "#{red_sorry} there's no link associated with that article," \
       " try a different article number:"
-      yes_condition
+    end
+
+    def article_info(input)
+      article = Article.find_by_id(input)
+      scraper.scrape_article(article)
+      puts "\nGreat choice, and seems fairly recent since" \
+        " it was written on #{article.date}."
+      puts "Here's the link to " \
+        "'#{Interface.print_blue(article.title)}':#{article.link}"
     end
   end
 end

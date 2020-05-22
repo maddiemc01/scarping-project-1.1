@@ -2,7 +2,7 @@
 # no puts, just stores instances of data i.e. attributes of articles
 
 class Article
-  attr_accessor :author, :date, :biopart1, :biopart2
+  attr_accessor :author, :date, :bio
   attr_reader :title, :link, :category, :featured, :id
 
   @@all = []
@@ -27,12 +27,6 @@ class Article
   def self.featured_for_category(category)
     Article.all.select do |article|
       article.featured == true && article.category == category
-    end
-  end
-
-  def self.for_category(category)
-    Articles.all.select do |article|
-      article.category == category
     end
   end
 
