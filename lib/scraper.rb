@@ -44,6 +44,3 @@ class Scraper
     end
   end
 end
-
-# bio? <div class="content-header__row content-header__dek">
-# trends 4(phil)

@@ -1,6 +1,3 @@
-# blueprint of object
-# no puts, just stores instances of data i.e. attributes of articles
-
 class Article
   attr_accessor :author, :date, :bio
   attr_reader :title, :link, :category, :featured, :id
