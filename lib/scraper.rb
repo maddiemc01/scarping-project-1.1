@@ -32,9 +32,8 @@ class Scraper
   def scrape_article(article)
     article_page = Nokogiri::HTML(HTTParty.get(article.link).body)
     article.author = article_page.css(".byline__name").text
-    article.biopart1 = article_page.css("p")[2].text
-    article.biopart2 = article_page.css("p")[3].text
-    article.date = article_page.css(".content-header__publish-date").text
+    article.bio = article_page.css("p")[3].text
+    article.date = article_page.css(".content-header__publish-date")[0].text
   end
 
   def otherarts(page, category)
