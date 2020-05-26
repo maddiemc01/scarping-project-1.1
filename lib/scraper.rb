@@ -11,7 +11,6 @@ class Scraper
     end
   end
 
-  # scrapes all the articles under category instance
   def scrape_category(category)
     return if category.scraped
 
