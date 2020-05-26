@@ -1,7 +1,3 @@
-# responsible for communication with the user
-# puts a lot
-# invokes scraper class
-# not using noku (for scraping)
 require_relative "./color.rb"
 
 class Cli
